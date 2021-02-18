@@ -1,0 +1,9 @@
+---
+
+- name: run role network-basic tests
+  hosts: all
+  gather_facts: no
+  connection: network_cli
+  roles: 
+    - ../../network-basics
+  

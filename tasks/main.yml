@@ -1,0 +1,21 @@
+---
+
+- include_tasks: facts.yml
+  tags: [facts, inventory]
+
+- include_tasks: parse_intf.yml
+  tags: [parse_intf]
+
+- include_tasks: parse_vlan.yml
+  tags: [parse_vlan] 
+  when: inventory_hostname in groups['switch']
+
+- include_tasks: push_intf_basic.yml
+  tags: [push_intf_basic, push_intf] 
+
+- include_tasks: push_intf_l3.yml
+  tags: [push_intf_l3, push_intf] 
+
+- include_tasks: push_intf_l2.yml
+  tags: [push_intf_l2, push_intf]
+  when: inventory_hostname in groups['switch']

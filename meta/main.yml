@@ -1,0 +1,23 @@
+dependencies: []
+
+collections: 
+  - cisco.ios
+  - arista.eos
+  - netbox.netbox
+
+galaxy_info:
+  role_name: network_basics
+  author: Markus Rainer
+  description: Role for Demo and Labs on network basics
+  company: Red Hat
+
+  license: MIT
+
+  min_ansible_version: 2.9
+
+  platforms: 
+    - name: GenericUNIX
+      versions:
+        - all
+
+  galaxy_tags: [cisco, eos, ios, arista, demo, lab, networking]

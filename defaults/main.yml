@@ -1,0 +1,12 @@
+---
+
+net_netbox_url: http://127.0.0.1
+net_netbox_token: "0123456789abcdef0123456789abcdef01234567"
+
+net_site: 'hetzner'
+net_device_role: router
+
+device_id: 0
+net_l3_intfs: []
+net_intfs: []
+net_intf_filter: "" 

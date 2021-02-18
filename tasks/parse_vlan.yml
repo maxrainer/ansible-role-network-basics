@@ -1,0 +1,55 @@
+---
+
+- name: PARSE VLAN INFORMATIONS
+  block:
+  - name: gather facts for L2 interface information
+    cisco.ios.ios_facts:
+      gather_network_resources: 
+        - "l2_interfaces"
+      gather_subset:
+        - min
+    register: _intf_result
+    become: true
+  - name: capture and parse 'show vlan'
+    ansible.netcommon.cli_parse:
+      command: "show vlan"
+      parser:
+        name: ansible.netcommon.pyats
+    register: _vlan_result
+    when: ansible_network_os == 'ios'
+  - debug: 
+      var: _vlan_result
+      verbosity: 2
+  when: inventory_hostname in groups['switch']
+  tags: [parse_vlan]
+
+- name: NETBOX BLOCK
+  block:
+  - name: push VLAN database to netbox
+    netbox.netbox.netbox_vlan:
+      netbox_url: "{{ net_netbox_url }}"
+      netbox_token: "{{ net_netbox_token }}"
+      validate_certs: no
+      data:
+        name: "{{ item.value.name }}"
+        vid: "{{ item.key }}"
+        site: "{{ net_site }}"
+    loop: "{{ _vlan_result.parsed.vlans | dict2items }}"
+    loop_control:
+      label: "{{ item.key }} ==> {{ item.value.name }}"
+  - name: push intf access VLAN to netbox
+    netbox.netbox.netbox_device_interface:
+      netbox_url: "{{ net_netbox_url }}"
+      netbox_token: "{{ net_netbox_token }}"
+      validate_certs: no
+      data:
+        device: "{{ inventory_hostname }}"
+        name: "{{ item.name }}"
+        mode: "access"
+        untagged_vlan: "{{ item.access.vlan | default(omit) }}"
+    loop: "{{ _intf_result.ansible_facts.ansible_network_resources.l2_interfaces }}"
+    loop_control:
+      label: "{{ item.name }}"
+    when: item.access is defined
+  when: inventory_hostname in groups['switch']
+  tags: [netbox]

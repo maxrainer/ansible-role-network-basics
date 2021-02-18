@@ -1,0 +1,54 @@
+---
+
+- name: NETBOX BLOCK
+  block:
+  - name: GET device ID if empty
+    uri: 
+      url: "{{ net_netbox_url }}/api/dcim/devices/?name={{ inventory_hostname }}"
+      method: GET
+      validate_certs: no
+      headers:
+        content-type: 'aplication/json'
+        Authorization: "Token {{ net_netbox_token }}"
+      body_format: json
+    register: _dcim_device
+    when: device_id == '' or device_id == 0
+  - name: "set netbox device ID {{ _dcim_device.json.results[0].id }}"
+    set_fact:
+      device_id: "{{ _dcim_device.json.results[0].id }}"
+    when: device_id == '' or device_id == 0 and _dcim_device.json.results is defined and _dcim_device.json.results | length > 0
+  - name: GET netbox DCIM interface information
+    uri:
+      url: "{{ net_netbox_url }}/api/dcim/interfaces/?device_id={{ device_id }}"
+      method: GET
+      validate_certs: no
+      headers:
+        content-type: 'aplication/json'
+        Authorization: "Token {{ net_netbox_token }}"
+      body_format: json
+    register: _intf_info
+  - set_fact:
+      net_intfs: "{{ net_intfs + [{'name':item.name, 'description':item.description, 'enabled':item.enabled}] }}"
+    loop: "{{ _intf_info.json.results }}"
+    loop_control:
+      label: "{{ item.name }}"
+  - debug:
+      var: net_intfs
+      verbosity: 2
+  tags: [netbox]
+
+- name: PUSH TO DEVICE BLOCK
+  block:
+  - name: Cisco IOS interface basics
+    cisco.ios.ios_interfaces:
+      config: "{{ net_intfs }}"
+      state: replaced
+    when: ansible_network_os == 'ios' and net_intf_filter == ""
+    become: yes
+  - name: Arista EOS interface basics
+    arista.eos.eos_interfaces:
+      config: "{{ net_intfs }}"
+      state: replaced
+    when: ansible_network_os == 'eos' and net_intf_filter == ""
+    become: yes
+  tags: [push_intf_basic]

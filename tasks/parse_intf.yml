@@ -1,0 +1,49 @@
+---
+
+- name: CAPTURE INTERFACE BLOCK
+  block:
+  - name: capture and parse 'show interface'
+    ansible.netcommon.cli_parse:
+      command: "show interfaces"
+      parser:
+        name: ansible.netcommon.ntc_templates
+    register: _int_result
+  - debug:
+      var: _int_result.parsed
+      verbosity: 2
+  tags: [parse_intf]
+
+- name: NETBOX BLOCK
+  block:
+  - name: push interface data to netbox
+    netbox.netbox.netbox_device_interface:
+      netbox_url: "{{ net_netbox_url }}"
+      netbox_token: "{{ net_netbox_token }}"
+      validate_certs: no
+      data:
+        device: "{{ inventory_hostname }}"
+        name: "{{ item.interface }}"
+        description: "{{ item.description | default(omit) }}"
+        mac_address: "{{ item.address | default(_default_mac, true) | ansible.netcommon.hwaddr('linux') }}"
+        type: "Virtual"
+        enabled: "{{ item.enabled | default(omit) }}"
+        mtu: "{{ item.mtu | default(omit) }}"
+    loop: "{{ _int_result.parsed }}"
+    loop_control:
+      label: "{{ item.interface }}"
+  - name: push IP addresses to device interfaces
+    netbox.netbox.netbox_ip_address:
+      netbox_url: "{{ net_netbox_url }}"
+      netbox_token: "{{ net_netbox_token }}"
+      validate_certs: no
+      data:
+        address: "{{ item.ip_address }}"
+        assigned_object:
+          name: "{{ item.interface }}"
+          device: "{{ inventory_hostname }}"
+    loop: "{{ _int_result.parsed }}"
+    loop_control:
+      label: "{{ item.interface }} ==> {{ item.ip_address }}"
+    when: item.ip_address != ""
+  tags: [netbox]
+  
