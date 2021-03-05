@@ -78,10 +78,26 @@
   become: yes
   tags: [l3]
 
+- name: Cisco IOS L3 network interfaces
+  cisco.ios.ios_l3_interfaces:
+    config: "{{ net_l3_intfs }}"
+    state: merged
+  when: ansible_network_os == 'ios' and net_intf_filter != ""
+  become: yes
+  tags: [l3]
+
 - name: Arista EOS L3 network interfaces
   arista.eos.eos_l3_interfaces:
     config: "{{ net_l3_intfs }}"
     state: replaced
   when: ansible_network_os == 'eos' and net_intf_filter == ""
+  become: yes
+  tags: [l3]
+
+- name: Arista EOS L3 network interfaces
+  arista.eos.eos_l3_interfaces:
+    config: "{{ net_l3_intfs }}"
+    state: merged
+  when: ansible_network_os == 'eos' and net_intf_filter != ""
   become: yes
   tags: [l3]
