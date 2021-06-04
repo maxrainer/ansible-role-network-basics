@@ -41,9 +41,6 @@
   when: ansible_network_os == 'eos'
   tags: [facts, inventory]
 
-- debug:
-    var: _facts
-
 - name: NETBOX block
   block:
   - name: make sure device type is configured

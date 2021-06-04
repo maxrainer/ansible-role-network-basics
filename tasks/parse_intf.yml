@@ -3,7 +3,7 @@
 - name: CAPTURE INTERFACE BLOCK
   block:
   - name: capture and parse 'show interface'
-    ansible.netcommon.cli_parse:
+    ansible.utils.cli_parse:
       command: "show interfaces"
       parser:
         name: ansible.netcommon.ntc_templates

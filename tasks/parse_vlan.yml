@@ -11,7 +11,7 @@
     register: _intf_result
     become: true
   - name: capture and parse 'show vlan'
-    ansible.netcommon.cli_parse:
+    ansible.utils.cli_parse:
       command: "show vlan"
       parser:
         name: ansible.netcommon.pyats
