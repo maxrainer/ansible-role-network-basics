@@ -1,0 +1,11 @@
+---
+
+- name: run role network-basic tests dot1x
+  hosts: switch
+  gather_facts: no
+  connection: network_cli
+  vars:
+    - foo: bar
+    - intf_tags: "[OrderedDict([('id', 2), ('url', '/api/extras/tags/2/'), ('name', 'mab'),('slug', 'mab'), ('color', '9e9e9e')])]"
+  roles: 
+    - ../../network-basics

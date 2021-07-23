@@ -37,12 +37,19 @@
         Authorization: "Token {{ net_netbox_token }}"
       body_format: json
     register: _intf_info
-  - name: debug netbox interface config
-    debug:
-      var: _intf_info
+  # - name: debug netbox interface config
+  #   debug:
+  #     var: _intf_info
+  #     verbosity: 2
+  # - name: debug interface tags
+  #   debug: 
+  #     var: item.tags[0].name
+  #     verbosity: 2
+  #   loop: "{{ _intf_info.json.results }}" 
+  #   when: item.tags is defined and item.tags|length > 0
   - name: set variable for RM for all access ports
     set_fact:
-      net_intfs: "{{ net_intfs + [{'name':item.name, 'access':{'vlan': item.untagged_vlan.vid} }] }}"
+      net_intfs: "{{ net_intfs + [{'name':item.name, 'mode':'access', 'access':{'vlan': item.untagged_vlan.vid} }] }}"
     loop: "{{ _intf_info.json.results }}"
     loop_control:
       label: "{{ item.name }} ==> vlan: {{ item.untagged_vlan.vid | default('skipped') }}"
@@ -50,6 +57,16 @@
   - debug:
       var: net_intfs
       verbosity: 2
+  tags: [netbox]
+
+- name: push L2 interface template to IOS L2 switch
+  cisco.ios.ios_config:
+    src: "tag_{{ item.tags[0].name }}.j2"
+    before: "default interface {{ item.name }}"
+  when: item.tags is defined and item.tags|length > 0
+  loop: "{{ _intf_info.json.results }}"
+  loop_control:
+    label: "{{ item.name }}"
   tags: [netbox]
 
 - name: PUSH L2 interface config BLOCK
@@ -61,3 +78,4 @@
     when: ansible_network_os == 'ios' and net_intfs | length > 0
   become: true
   tags: [push_intf_l2, push_intf]
+
