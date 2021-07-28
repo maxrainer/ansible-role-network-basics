@@ -19,3 +19,7 @@
 - include_tasks: push_intf_l2.yml
   tags: [push_intf_l2, push_intf]
   when: inventory_hostname in groups['switch']
+
+- include_tasks: push_intf_l2_survey.yml
+  tags: [l2survey]
+  when: inventory_hostname in groups['switch']

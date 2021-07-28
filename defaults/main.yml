@@ -10,3 +10,5 @@ device_id: 0
 net_l3_intfs: []
 net_intfs: []
 net_intf_filter: "" 
+net_l2_template: ""
+net_vlan: ""

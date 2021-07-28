@@ -1,0 +1,40 @@
+---
+
+- name: set variable for RM on access ports
+  set_fact:
+    net_intfs: "{{ net_intfs + [{'name':net_intf_filter, 'mode':'access', 'access':{'vlan': net_vlan} }] }}"
+  when: net_vlan != "" and net_intf_filter != ""
+  tags: [l2survey]
+
+- name: push L2 interface template to IOS L2 switch
+  cisco.ios.ios_config:
+    src: "tag_{{ net_l2_template }}.j2"
+    before: "default interface {{ net_intf_filter }}"
+  loop:
+    - "{{ {'name':net_intf_filter } }}"
+  when: net_intf_filter != "" and net_l2_template != ""
+  tags: [l2survey]
+
+- name: PUSH L2 interface config BLOCK
+  block:
+  - name: push L2 interface to IOS
+    cisco.ios.ios_l2_interfaces:
+      config: "{{ net_intfs }}"
+      state: merged
+    when: ansible_network_os == 'ios' and net_intfs | length > 0
+  become: true
+  tags: [l2survey]
+
+- name: sync config with Netbox
+  netbox.netbox.netbox_device_interface:
+    netbox_url: "{{ net_netbox_url }}"
+    netbox_token: "{{ net_netbox_token }}"
+    validate_certs: no
+    data:
+      device: "{{ inventory_hostname }}"
+      name: "{{ net_intf_filter }}"
+      mode: "access"
+      untagged_vlan: "{{ net_vlan }}"
+      tags:
+       - "{{ net_l2_template }}"
+  tags: [netbox]

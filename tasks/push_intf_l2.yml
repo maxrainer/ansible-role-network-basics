@@ -54,6 +54,7 @@
     loop_control:
       label: "{{ item.name }} ==> vlan: {{ item.untagged_vlan.vid | default('skipped') }}"
     when: item.mode is defined and item.mode.value is defined and item.mode.value == 'access'
+      and (net_intf_filter == "" or net_intf_filter == item.name )
   - debug:
       var: net_intfs
       verbosity: 2
