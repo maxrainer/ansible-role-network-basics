@@ -24,7 +24,7 @@
         device: "{{ inventory_hostname }}"
         name: "{{ item.interface }}"
         description: "{{ item.description | default(omit) }}"
-        mac_address: "{{ item.address | default(_default_mac, true) | ansible.utlils.hwaddr('linux') }}"
+        mac_address: "{{ item.address | default(_default_mac, true) | ansible.utils.hwaddr('linux') }}"
         type: "Virtual"
         enabled: "{{ item.enabled | default(omit) }}"
         mtu: "{{ item.mtu | default(omit) }}"
