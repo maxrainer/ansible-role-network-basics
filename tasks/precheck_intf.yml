@@ -1,0 +1,98 @@
+#
+# 
+
+- name: check intf range prerequisites
+  block:
+    - name: gather interface facts
+      cisco.nxos.nxos_facts:
+        gather_subset: interfaces
+      register: _intfs
+    - debug:
+        var: _intfs.ansible_facts.ansible_net_interfaces
+        verbosity: 2
+    - debug:
+        msg: "check interface {{ item }} available"
+      failed_when: item not in _intfs.ansible_facts.ansible_net_interfaces | list
+      loop: "{{ net_int_range }}"
+    - debug:
+        msg: "check interface {{ item }} has config"
+      failed_when: _intfs.ansible_facts.ansible_net_interfaces[item].description is defined
+      loop: "{{ net_int_range }}"
+  tags: [tcpoc, intf]
+  when: inventory_hostname in groups['l2']
+
+- name: check VLAN database
+  block:
+    - name: capture and parse 'show vlan'
+      ansible.utils.cli_parse:
+        command: "show vlan"
+        parser:
+          name: ansible.netcommon.pyats
+      register: _vlan_result
+    - name: print output before VLAN pushed
+      debug: 
+        var: _vlan_result
+        verbosity: 2
+    - name: create VLAN in database
+      cisco.nxos.nxos_vlans:
+        config:
+          - name: "{{ net_vlan_name }}"
+            vlan_id: "{{ net_vlan_id }}"
+        state: merged
+      register: _vlan_pushed
+    - name: print result after VLAN pushed
+      debug: 
+        var: _vlan_pushed
+        verbosity: 2
+  tags: [tcpoc, vlan]
+  when: inventory_hostname in groups['l3'] or inventory_hostname in groups['l2']
+
+- name: push configuration on interfaces
+  block:
+    - name: push VLAN config to interfaces
+      cisco.nxos.nxos_l2_interfaces:
+        config:
+          - access:
+              vlan: "{{ net_vlan_id }}"
+            mode: access
+            name: "{{ item }}"
+        state: merged
+      loop: "{{ net_int_range }}"
+      register: _l2_intf
+    - debug: 
+        var: _l2_intf
+        verbosity: 2
+    - name: enable interface and add description 
+      cisco.nxos.nxos_interfaces:
+        config: 
+          - description: "VLAN set by Ansible automation to {{ net_vlan_name }}"
+            name: "{{ item }}"
+            enabled: true
+      loop: "{{ net_int_range }}"
+  tags: [tcpoc, l2]
+  when: inventory_hostname in groups['l2']
+
+- name: L3 device configuration
+  block:
+    - name: create VRF 
+      cisco.nxos.nxos_vrf:
+        name: "{{ net_vlan_name }}"
+        interfaces: 
+          - "{{ net_vrf_intf }}"
+        purge: no
+    - name: create IP address for VRF
+      cisco.nxos.nxos_l3_interfaces:
+        config:
+          - name: "{{ net_vrf_intf }}"
+            ipv4: 
+              - address: "{{ net_vlan_ip_1 if inventory_hostname in groups['main'] else net_vlan_ip_2 }}"
+    - name: create HSRP group
+      cisco.nxos.nxos_hsrp:
+        group: "{{ net_vlan_id }}"
+        vip: "{{ net_vlan_ip_hsrp }}"
+        interface: "{{ net_vrf_intf }}"
+        preempt: enabled
+  when: inventory_hostname in groups['l3']
+  tags: [tcpoc, l3]
+            
+    

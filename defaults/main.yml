@@ -12,3 +12,14 @@ net_intfs: []
 net_intf_filter: "" 
 net_l2_template: ""
 net_vlan: ""
+
+net_int_range:
+  - Ethernet1/3
+  - Ethernet1/4
+
+net_vlan_name: vlan10
+net_vlan_id: 10
+net_vlan_ip_hsrp: 12.12.12.3 
+net_vlan_ip_2: 12.12.12.2/29
+net_vlan_ip_1: 12.12.12.1/29
+net_vrf_intf: Ethernet1/9
