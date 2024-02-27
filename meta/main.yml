@@ -3,6 +3,7 @@ dependencies: []
 collections: 
   - cisco.ios
   - arista.eos
+  - junipernetworks.junos
   - netbox.netbox
 
 galaxy_info:
