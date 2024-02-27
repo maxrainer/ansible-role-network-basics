@@ -6,6 +6,8 @@ net_netbox_token: "0123456789abcdef0123456789abcdef01234567"
 net_site: 'hetzner'
 net_device_role: router
 
+net_max_intf_loops: 10
+
 device_id: 0
 net_l3_intfs: []
 net_intfs: []

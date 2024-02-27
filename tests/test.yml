@@ -1,9 +1,13 @@
 ---
 
-- name: run role network-basic tests
+- name: Run role network-basic tests
   hosts: all
-  gather_facts: no
-  connection: network_cli
-  roles: 
-    - ../../network-basics
-  
+  gather_facts: false
+  vars:
+    _default_mac: 00:00:00:00:00:00
+    net_max_intf_loops: 10
+  tasks:
+    - name: Include main.yml 
+      ansible.builtin.include_tasks:
+        file: ../tasks/main.yml
+      tags: always

@@ -1,14 +1,4 @@
 ---
-  # "l2_interfaces": [
-  #       {
-  #           "name": "Ethernet0/0"
-  #       },
-  #       {
-  #           "access": {
-  #               "vlan": 10
-  #           },
-  #           "name": "Ethernet0/1"
-  #       },
 
 - name: NETBOX BLOCK
   block:
