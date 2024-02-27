@@ -9,7 +9,7 @@
   when: ansible_network_os == 'junipernetworks.junos.junos'
   tags: always
 
-- include_tasks: Parse_facts.yml
+- include_tasks: parse_facts.yml
   tags: [facts, inventory]
 
 - include_tasks: parse_intf.yml
