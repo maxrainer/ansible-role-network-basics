@@ -20,4 +20,4 @@ galaxy_info:
       versions:
         - all
 
-  galaxy_tags: [cisco, eos, ios, arista, demo, lab, networking]
+  galaxy_tags: [cisco, eos, ios, arista, junos, juniper, demo, lab, networking]
