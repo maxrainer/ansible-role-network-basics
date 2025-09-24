@@ -75,7 +75,7 @@
     config: "{{ net_l3_intfs }}"
     state: replaced
   when: ansible_network_os == 'ios' and net_intf_filter == ""
-  become: yes
+  become: true
   tags: [push_intf_l3]
 
 - name: Cisco IOS L3 network interfaces - merged
@@ -83,7 +83,7 @@
     config: "{{ net_l3_intfs }}"
     state: merged
   when: ansible_network_os == 'ios' and net_intf_filter != ""
-  become: yes
+  become: true
   tags: [push_intf_l3]
 
 - name: Arista EOS L3 network interfaces - replaced
@@ -91,7 +91,7 @@
     config: "{{ net_l3_intfs }}"
     state: replaced
   when: ansible_network_os == 'eos' and net_intf_filter == ""
-  become: yes
+  become: true
   tags: [push_intf_l3]
 
 - name: Arista EOS L3 network interfaces - merged
@@ -99,5 +99,21 @@
     config: "{{ net_l3_intfs }}"
     state: merged
   when: ansible_network_os == 'eos' and net_intf_filter != ""
-  become: yes
+  become: true
+  tags: [push_intf_l3]
+
+- name: Juniper JunOS L3 network interfaces - replaced
+  junipernetworks.junos.junos_l3_interfaces:
+    config: "{{ net_l3_intfs }}"
+    state: replaced
+  when: ansible_network_os == 'junos' and net_intf_filter == ""
+  become: true
+  tags: [push_intf_l3]
+
+- name: Juniper JunOS L3 network interfaces - merged
+  junipernetworks.junos.junos_l3_interfaces:
+    config: "{{ net_l3_intfs }}"
+    state: merged
+  when: ansible_network_os == 'junos' and net_intf_filter != ""
+  become: true
   tags: [push_intf_l3]
