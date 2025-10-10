@@ -1,4 +1,5 @@
 ---
+
 # juniper added
 # pushes L3 interface config 
 # facts schema
@@ -61,11 +62,25 @@
         Authorization: "Token {{ net_netbox_token }}"
       body_format: json
     register: _ipam_info
-  - set_fact:
+
+  - name: interface config var for non Juniper platforms
+    set_fact:
       net_l3_intfs: "{{ net_l3_intfs + [{'name': item.assigned_object.name, 'ipv4':[{'address':item.address}]} ] }}"
     loop: "{{ _ipam_info.json.results }}"
     loop_control:
       label: "{{ item.assigned_object.name }} ==> {{ item.address }}"
+    when: ansible_network_os != 'junipernetworks.junos.junos'
+
+  - name: interface config var for Juniper platform
+    set_fact: 
+      net_l3_intfs: "{{ net_l3_intfs + [{'name': item.assigned_object.name | regex_replace('\\..*', ''),
+        'ipv4':[{'address':item.address}],
+        'unit': item.assigned_object.name | regex_replace('^.*\\.','')} ] }}"
+    loop: "{{ _ipam_info.json.results }}"
+    loop_control:
+      label: "{{ item.assigned_object.name }} ==> {{ item.address }}"
+    when: ansible_network_os == 'junipernetworks.junos.junos'
+
   - debug:
       var: net_l3_intfs
       verbosity: 2

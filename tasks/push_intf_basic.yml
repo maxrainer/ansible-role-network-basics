@@ -44,11 +44,17 @@
       config: "{{ net_intfs }}"
       state: replaced
     when: ansible_network_os == 'ios' and net_intf_filter == ""
-    become: yes
+    become: true
   - name: Arista EOS interface basics
     arista.eos.eos_interfaces:
       config: "{{ net_intfs }}"
       state: replaced
     when: ansible_network_os == 'eos' and net_intf_filter == ""
-    become: yes
+    become: true
+  - name: Juniper JUNOS interface basics
+    junipernetworks.junos:
+      config: "{{ net_intfs }}"
+      state: replaced
+    when: ansible_network_os == 'junipernetworks.junos.junos' and net_intf_filter == ""
+    become: true
   tags: [push_intf_basic]
