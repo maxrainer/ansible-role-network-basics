@@ -79,7 +79,7 @@
     loop: "{{ _ipam_info.json.results }}"
     loop_control:
       label: "{{ item.assigned_object.name }} ==> {{ item.address }}"
-    when: ansible_network_os == 'junipernetworks.junos.junos'
+    when: ansible_network_os == 'junipernetworks.junos.junos' and item.assigned_object.name is regex('^.*\\.0')
 
   - debug:
       var: net_l3_intfs
