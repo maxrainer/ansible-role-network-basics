@@ -45,7 +45,7 @@
       validate_certs: false
       data:
         address: "{%if item.ip_address is defined %}{{ item.ip_address }}
-          {% else %}{{ item.local }}{% endif %}"
+          {% else %}{{ item.local }}{{ item.destination | regex_replace('^.*/','/') }}{% endif %}"
         assigned_object:
           name: "{{ item.interface }}"
           device: "{{ inventory_hostname }}"
@@ -54,6 +54,6 @@
       label: "{{ item.interface }}"
       extended: true
     when: (item.ip_address is defined and item.ip_address != "")
-      or (item.local is defined and item.local != "" )
+      or (item.local is defined and item.local != "" and item.destination is defined and item.destination != "")
       and ansible_loop.index0 < net_max_intf_loops
   tags: [netbox]
