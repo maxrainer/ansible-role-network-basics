@@ -118,18 +118,26 @@
   become: true
   tags: [push_intf_l3]
 
-- name: Juniper JunOS L3 network interfaces - replaced
-  junipernetworks.junos.junos_l3_interfaces:
-    config: "{{ net_l3_intfs }}"
-    state: replaced
-  when: ansible_network_os == 'junipernetworks.junos.junos' and net_intf_filter == ""
-  become: true
-  tags: [push_intf_l3]
-
 - name: Juniper JunOS L3 network interfaces - merged
   junipernetworks.junos.junos_l3_interfaces:
     config: "{{ net_l3_intfs }}"
     state: merged
-  when: ansible_network_os == 'junipernetworks.junos.junos' and net_intf_filter != ""
+  when: ansible_network_os == 'junipernetworks.junos.junos'
   become: true
   tags: [push_intf_l3]
+
+# - name: Juniper JunOS L3 network interfaces - replaced
+#   junipernetworks.junos.junos_l3_interfaces:
+#     config: "{{ net_l3_intfs }}"
+#     state: replaced
+#   when: ansible_network_os == 'junipernetworks.junos.junos' and net_intf_filter == ""
+#   become: true
+#   tags: [push_intf_l3]
+
+# - name: Juniper JunOS L3 network interfaces - merged
+#   junipernetworks.junos.junos_l3_interfaces:
+#     config: "{{ net_l3_intfs }}"
+#     state: merged
+#   when: ansible_network_os == 'junipernetworks.junos.junos' and net_intf_filter != ""
+#   become: true
+#   tags: [push_intf_l3]

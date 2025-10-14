@@ -14,3 +14,6 @@ net_intfs: []
 net_intf_filter: "" 
 net_l2_template: ""
 net_vlan: ""
+
+net_username: ""
+net_password_plain: ""
