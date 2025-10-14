@@ -17,3 +17,5 @@ net_vlan: ""
 
 net_username: ""
 net_password_plain: ""
+net_user_role: "operator"
+net_user_state: "present"
