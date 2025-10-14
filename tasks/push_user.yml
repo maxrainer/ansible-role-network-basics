@@ -7,3 +7,4 @@
     role: "{{ net_user_role }}"
     encrypted_password: "{{ net_password_encrypted | default(omit) }}"
     sshkey: "{{ net_user_sshkey | default(omit) }}"
+  tags: [user]
