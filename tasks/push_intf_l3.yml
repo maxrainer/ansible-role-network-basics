@@ -79,7 +79,8 @@
     loop: "{{ _ipam_info.json.results }}"
     loop_control:
       label: "{{ item.assigned_object.name }} ==> {{ item.address }}"
-    when: ansible_network_os == 'junipernetworks.junos.junos' and item.assigned_object.name is regex('^.*\\.0')
+    when: ansible_network_os == 'junipernetworks.junos.junos' and item.assigned_object.name is regex('^.*\\.0') 
+      and item.assigned_object.name is not regex('^bme0\\.0')
 
   - debug:
       var: net_l3_intfs
@@ -118,26 +119,18 @@
   become: true
   tags: [push_intf_l3]
 
+- name: Juniper JunOS L3 network interfaces - replaced
+  junipernetworks.junos.junos_l3_interfaces:
+    config: "{{ net_l3_intfs }}"
+    state: replaced
+  when: ansible_network_os == 'junipernetworks.junos.junos' and net_intf_filter == ""
+  become: true
+  tags: [push_intf_l3]
+
 - name: Juniper JunOS L3 network interfaces - merged
   junipernetworks.junos.junos_l3_interfaces:
     config: "{{ net_l3_intfs }}"
     state: merged
-  when: ansible_network_os == 'junipernetworks.junos.junos'
+  when: ansible_network_os == 'junipernetworks.junos.junos' and net_intf_filter != ""
   become: true
   tags: [push_intf_l3]
-
-# - name: Juniper JunOS L3 network interfaces - replaced
-#   junipernetworks.junos.junos_l3_interfaces:
-#     config: "{{ net_l3_intfs }}"
-#     state: replaced
-#   when: ansible_network_os == 'junipernetworks.junos.junos' and net_intf_filter == ""
-#   become: true
-#   tags: [push_intf_l3]
-
-# - name: Juniper JunOS L3 network interfaces - merged
-#   junipernetworks.junos.junos_l3_interfaces:
-#     config: "{{ net_l3_intfs }}"
-#     state: merged
-#   when: ansible_network_os == 'junipernetworks.junos.junos' and net_intf_filter != ""
-#   become: true
-#   tags: [push_intf_l3]
