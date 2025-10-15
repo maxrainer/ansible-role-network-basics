@@ -1,6 +1,6 @@
 ---
 
-- name: add user to JunOS
+- name: manage user JunOS
   junipernetworks.junos.junos_user:
     name: "{{ net_username }}"
     state: "{{ net_user_state }}"
