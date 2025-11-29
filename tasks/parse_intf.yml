@@ -44,7 +44,8 @@
       netbox_token: "{{ net_netbox_token }}"
       validate_certs: false
       data:
-        address: "{%if item.ip_address is defined %}{{ item.ip_address }}
+        address: "{%if item.ip_address is defined and item.prefix_length is defined %}{{ item.ip_address }}/{{ item.prefix_length }}
+          {% elif item.ip_address is defined %}{{ item.ip_address }}
           {% else %}{{ item.local }}{{ item.destination | regex_replace('^.*/','/') }}{% endif %}"
         assigned_object:
           name: "{{ item.interface }}"
@@ -57,3 +58,4 @@
       or (item.local is defined and item.local != "" and item.destination is defined and item.destination != "")
       and ansible_loop.index0 < net_max_intf_loops
   tags: [netbox]
+

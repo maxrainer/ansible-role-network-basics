@@ -10,6 +10,7 @@ ansible-navigator:
     inventory:
       entries:
         - /Users/mrainer/Documents/dev/ansible/networking/inventory/network-demos-inventory/site.yaml.yml
+#        - /Users/mrainer/Documents/dev/ansible/networking/inventory/network-demos-inventory/exos.yml
       help: false
     playbook:
       help: false
@@ -33,7 +34,7 @@ ansible-navigator:
   execution-environment:
     container-engine: docker
     enabled: true
-    image: quay.io/maxrainer/netbox:latest
+    image: quay.io/maxrainer/netboxmac:latest
     pull:
       policy: missing
   format: yaml
