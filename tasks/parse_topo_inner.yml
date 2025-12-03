@@ -4,10 +4,12 @@
   ansible.builtin.set_fact:
     _interfaceA_name: "{{ _neighbor.local_interface | regex_replace('^Et([0-9/]*)$', 'Ethernet\\1') }}"
     _interfaceB_name: "{{ _neighbor.neighbor_interface | regex_replace('^Et([0-9/]*)$', 'Ethernet\\1') }}"
+  tags: parse_topo
 
 - debug: 
     msg: "{{ _interfaceA_name + ' - ' + _interfaceB_name }}"
     verbosity: 2
+  tags: parse_topo
 
 - name: get interface_A object from netbox
   netbox.netbox.netbox_device_interface:
@@ -18,6 +20,7 @@
       device: "{{ inventory_hostname }}"
       name: "{{ _interfaceA_name }}"
   register: _interfaceA
+  tags: parse_topo
 
 - name: get interface B object from netbox
   netbox.netbox.netbox_device_interface:
@@ -28,6 +31,7 @@
       device: "{{ _neighbor.neighbor }}"
       name: "{{ _interfaceB_name }}"
   register: _interfaceB
+  tags: parse_topo
 
 - name: "sync netbox cable entry for {{ _neighbor.neighbor }}"
   netbox.netbox.netbox_cable:
@@ -41,3 +45,4 @@
       termination_b_type: dcim.interface
       type: cat5e
       status: connected
+  tags: parse_topo
