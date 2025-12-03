@@ -27,7 +27,8 @@
         name: "{{ item.interface }}"
         description: "{{ item.description | default(omit) }}"
         mac_address: "{{ item.address | default(_default_mac, true) | ansible.utils.hwaddr('linux') }}"
-        type: "Virtual"
+        #type: "Virtual"
+        type: "1000BASE-TX (1GE)"
         enabled: "{{ item.enabled | default(omit) }}"
         mtu: "1500"
 # workaround for Juniper Devices MTU failure        
