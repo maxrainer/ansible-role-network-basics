@@ -35,4 +35,7 @@
 
 - include_tasks: push_user.yml
   tags: [user]
-  
+
+- ansible.builtin.include_tasks: parse_topo.yml
+  tags: [parse_topo]
+

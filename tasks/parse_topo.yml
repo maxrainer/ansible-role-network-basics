@@ -1,0 +1,21 @@
+---
+
+- name: Capture and parse 'show lldp neighbors'
+  ansible.utils.cli_parse:
+    command: "show lldp neighbors"
+    parser: 
+      name: ansible.netcommon.ntc_templates
+  register: _neighbor_result
+  tags: parse_topo
+
+- debug:
+    var: _neighbor_result
+    verbosity: 2
+  tags: parse_topo
+
+- ansible.builtin.include_tasks: 
+    file: topo_inner.yml
+  loop: "{{ _neighbor_result.parsed }}"
+  loop_control: 
+    loop_var: _neighbor
+  tags: parse_topo

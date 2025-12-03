@@ -1,0 +1,43 @@
+---
+
+- name: rewrite Ethernet interfaces 
+  ansible.builtin.set_fact:
+    _interfaceA_name: "{{ _neighbor.local_interface | regex_replace('^Et([0-9/]*)$', 'Ethernet\\1') }}"
+    _interfaceB_name: "{{ _neighbor.neighbor_interface | regex_replace('^Et([0-9/]*)$', 'Ethernet\\1') }}"
+
+- debug: 
+    msg: "{{ _interfaceA_name + ' - ' + _interfaceB_name }}"
+    verbosity: 2
+
+- name: get interface_A object from netbox
+  netbox.netbox.netbox_device_interface:
+    netbox_url: "{{ net_netbox_url }}"
+    netbox_token: "{{ net_netbox_token }}"
+    validate_certs: no
+    data:
+      device: "{{ inventory_hostname }}"
+      name: "{{ _interfaceA_name }}"
+  register: _interfaceA
+
+- name: get interface B object from netbox
+  netbox.netbox.netbox_device_interface:
+    netbox_url: "{{ net_netbox_url }}"
+    netbox_token: "{{ net_netbox_token }}"
+    validate_certs: no
+    data:
+      device: "{{ _neighbor.neighbor }}"
+      name: "{{ _interfaceB_name }}"
+  register: _interfaceB
+
+- name: "sync netbox cable entry for {{ _neighbor.neighbor }}"
+  netbox.netbox.netbox_cable:
+    netbox_url: "{{ net_netbox_url }}"
+    netbox_token: "{{ net_netbox_token }}"
+    validate_certs: no
+    data:
+      termination_a: "{{ _interfaceA.interface }}"
+      termination_a_type: dcim.interface
+      termination_b: "{{ _interfaceB.interface }}"
+      termination_b_type: dcim.interface
+      type: cat5e
+      status: connected
