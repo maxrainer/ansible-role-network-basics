@@ -1,0 +1,8 @@
+[
+    {% for _intfs in _all_netbox_intfs.json.results %}
+    {
+        "device": "{{ _netbox_device.device.id }}",
+        "id": "{{ _intfs.id }}"
+    },
+    {% endfor %}
+]

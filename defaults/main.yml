@@ -6,7 +6,10 @@ net_netbox_token: "0123456789abcdef0123456789abcdef01234567"
 net_site: 'hetzner'
 net_device_role: router
 
-net_max_intf_loops: 30
+net_max_intfs: 200
+
+# change this if netbox API overloaded
+net_throttle_bulk_api: 5
 
 device_id: 0
 net_l3_intfs: []

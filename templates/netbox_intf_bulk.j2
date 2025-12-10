@@ -1,0 +1,9 @@
+[
+    {% for _intf in _int_result.parsed %}
+    {
+        "device": "{{ _netbox_device.device.id }}",
+        "name": "{{ _intf.interface }}",
+        "type": "virtual",
+    },
+    {% endfor %}
+]

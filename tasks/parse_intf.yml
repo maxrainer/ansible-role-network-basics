@@ -17,27 +17,60 @@
 
 - name: NETBOX BLOCK
   block:
-  - name: Push interface data to netbox
-    netbox.netbox.netbox_device_interface:
+
+  - name: Get DB DeviceID
+    netbox.netbox.netbox_device:
       netbox_url: "{{ net_netbox_url }}"
       netbox_token: "{{ net_netbox_token }}"
       validate_certs: no
-      data:
-        device: "{{ inventory_hostname }}"
-        name: "{{ item.interface }}"
-        description: "{{ item.description | default(omit) }}"
-        mac_address: "{{ item.address | default(_default_mac, true) | ansible.utils.hwaddr('linux') }}"
-        #type: "Virtual"
-        type: "1000BASE-TX (1GE)"
-        enabled: "{{ item.enabled | default(omit) }}"
-        mtu: "1500"
-# workaround for Juniper Devices MTU failure        
-#        mtu: "{% if item.mtu | length > 1 and item.mtu != 'Unlimited' %}{{ item.mtu |int }}{% endif %}"
-    loop: "{{ _int_result.parsed }}"
-    loop_control:
-      extended: true
-      label: "{{ item.interface }}"
-    when: ansible_loop.index0 < net_max_intf_loops
+      data: 
+        name: "{{ inventory_hostname }}"
+    register: _netbox_device
+
+  - debug: 
+      msg: "{{ lookup('template', '../templates/netbox_intf_bulk.j2') }}"
+      verbosity: 2
+
+  - name: GET all interfaces from netbox
+    ansible.builtin.uri:
+      url: "{{ net_netbox_url }}/api/dcim/interfaces?device={{ inventory_hostname }}&limit={{ net_max_intfs }}"
+      method: GET
+      status_code: [200, 201]
+      headers: 
+        Authorization: "Token {{ net_netbox_token }}"
+        Content-Type: "application/json"
+      validate_certs: false
+    register: _all_netbox_intfs
+
+  - debug: 
+      var: _all_netbox_intfs.json.results | length
+      verbosity: 2
+
+  - name: DELETE all interfaces from Netbox
+    ansible.builtin.uri:
+      url: "{{ net_netbox_url }}/api/dcim/interfaces/"
+      method: DELETE
+      status_code: [204]
+      headers: 
+        Authorization: "Token {{ net_netbox_token }}"
+        Content-Type: "application/json"
+      validate_certs: false
+      body: "{{ lookup('template', '../templates/netbox_delete_intf.j2') }}"
+      body_format: json
+    throttle: "{{ net_throttle_bulk_api }}"
+
+  - name: POST all interfaces to Netbox
+    ansible.builtin.uri:
+      url: "{{ net_netbox_url }}/api/dcim/interfaces/"
+      method: POST
+      status_code: [200, 201]
+      headers: 
+        Authorization: "Token {{ net_netbox_token }}"
+        Content-Type: "application/json"
+      body: "{{ lookup('template', '../templates/netbox_intf_bulk.j2') }}"
+      body_format: json
+      validate_certs: false
+    throttle: "{{ net_throttle_bulk_api }}"
 
   - name: Push IP addresses to device interfaces
     netbox.netbox.netbox_ip_address:
@@ -57,6 +90,6 @@
       extended: true
     when: (item.ip_address is defined and item.ip_address != "")
       or (item.local is defined and item.local != "" and item.destination is defined and item.destination != "")
-      and ansible_loop.index0 < net_max_intf_loops
   tags: [netbox]
+
 
