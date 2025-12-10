@@ -3,7 +3,9 @@
     {
         "device": "{{ _netbox_device.device.id }}",
         "name": "{{ _intf.interface }}",
-        "type": "virtual",
+        "type": "1000base-tx",
+        "description": "{{ _intf.description }}",
+        "mtu": "1500"
     },
     {% endfor %}
 ]
